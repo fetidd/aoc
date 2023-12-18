@@ -1,0 +1,28 @@
+fn solve_03a() {
+    
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_solve_03a() {
+        let data = std::fs::read_to_string("day_02.txt").unwrap();
+        assert_eq!((), solve_03a());
+    }
+
+    // #[test]
+    // fn test_func() {
+    //     let tests = vec![
+    //         (),
+
+    //     ];
+    //     for (input, exp) in tests {
+    //         assert_eq!(
+    //             exp,
+    //             func(input)
+    //         );
+    //     }
+    // }
+}
