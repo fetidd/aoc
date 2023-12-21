@@ -1,5 +1,3 @@
-use std::io::Write;
-
 static INPUT: &'static str = include_str!("../input.txt");
 
 fn main() {
@@ -9,28 +7,25 @@ fn main() {
             .map(|line| line.chars().collect::<Vec<_>>())
             .collect::<Vec<_>>(),
     );
-    let mut s_loc = FieldLocation {
-        row: 0,
-        col: 0,
-        appr: Direction::Up,
-    };
+    let mut s_loc = Loc::default();
     for (row, line) in field.0.iter().enumerate() {
         if let Some(col) = line.iter().position(|x| *x == 'S') {
-            s_loc = FieldLocation {
+            s_loc = Loc {
                 row,
                 col,
-                appr: Direction::Up,
+                appr: Some(Direction::Up),
             };
             break;
         }
     }
     dbg!(&s_loc);
-    let mut visited = vec![];
+    let mut corners = vec![];
     let mut a = up(&s_loc);
-    let mut b = down(&s_loc);
-    let mut steps = 2;
+    if ['J', 'L', '7', 'F'].contains(&field.get(&a)) {
+        corners.push(a);
+    }
     loop {
-        let next_a = dir(&field.get(&a), &a.appr);
+        let next_a = dir(&field.get(&a), &a.appr.unwrap());
         if let Ok(next_a) = next_a {
             match next_a {
                 Direction::Up => a = up(&a),
@@ -39,80 +34,64 @@ fn main() {
                 Direction::Right => a = right(&a),
             }
         } else {
-            println!("A failed with {:?}", &next_a);
-            break;
+            panic!();
         }
-        visited.push(a.clone());
-        if a == b {
-            println!("{} steps to {:?} {:?}", steps, a, b);
-            break;
+        if ['J', 'L', '7', 'F'].contains(&field.get(&a)) {
+            corners.push(a);
         }
-        let next_b = dir(&field.get(&b), &b.appr);
-        if let Ok(next_b) = next_b {
-            match next_b {
-                Direction::Up => b = up(&b),
-                Direction::Down => b = down(&b),
-                Direction::Left => b = left(&b),
-                Direction::Right => b = right(&b),
-            }
-        } else {
-            println!("B failed with {:?}", &next_b);
+        if field.get(&a) == 'S' {
+            corners.push(a);
             break;
-        }
-        visited.push(b.clone());
-        if a == b {
-            println!("{} steps to {:?} {:?}", steps, a, b);
-            break;
-        }
-        steps += 1;
-    }
-    let mut pipe_loop = field.clone();
-    for (row, x) in pipe_loop.0.iter_mut().enumerate() {
-        for (col, y) in x.iter_mut().enumerate() {
-            if !visited
-                .iter()
-                .map(|fl| (fl.row, fl.col))
-                .any(|x| x == (row, col))
-            {
-                *y = '.';
-            }
         }
     }
-    let mut pipe_file = std::fs::File::create("pipe.txt").unwrap();
-    for row in pipe_loop.0.into_iter() {
-        let line: String = row.iter().fold(String::new(), |mut a, b| {
-            a.push(*b);
-            a
-        });
-        pipe_file.write(line.as_bytes()).unwrap();
-        pipe_file.write("\n".as_bytes()).unwrap();
+    let corners = corners.iter().map(|l| (l.row, l.col)).collect::<Vec<_>>();
+    let mut left_sum = 0;
+    let mut right_sum = 0;
+    for i in 0..corners.len() {
+        let l = corners[i].0;
+        let mut r_i = i + 1;
+        if r_i == corners.len() {
+            r_i = 0;
+        }
+        let r = corners[r_i].1;
+        left_sum += l * r;
     }
+    for i in 0..corners.len() {
+        let l = corners[i].1;
+        let mut r_i = i + 1;
+        if r_i == corners.len() {
+            r_i = 0;
+        }
+        let r = corners[r_i].0;
+        right_sum += l * r;
+    }
+    println!("{}", (right_sum - left_sum) / 2);
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Field(Vec<Vec<char>>);
 
 impl Field {
-    fn get(&self, loc: &FieldLocation) -> char {
+    fn get(&self, loc: &Loc) -> char {
         self.0[loc.row][loc.col]
     }
 }
 
 /// A point in the field, from top-left.
-#[derive(Debug, Clone)]
-struct FieldLocation {
+#[derive(Debug, Clone, Default, Copy)]
+struct Loc {
     row: usize,
     col: usize,
-    appr: Direction,
+    appr: Option<Direction>,
 }
 
-impl PartialEq for FieldLocation {
+impl PartialEq for Loc {
     fn eq(&self, other: &Self) -> bool {
         self.col == other.col && self.row == other.row
     }
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 enum Direction {
     Up,
     Down,
@@ -138,32 +117,32 @@ fn dir(pipe: &char, approach_dir: &Direction) -> Result<Direction, String> {
     }
 }
 
-fn up(curr: &FieldLocation) -> FieldLocation {
-    FieldLocation {
+fn up(curr: &Loc) -> Loc {
+    Loc {
         row: curr.row - 1,
         col: curr.col,
-        appr: Direction::Down,
+        appr: Some(Direction::Down),
     }
 }
-fn down(curr: &FieldLocation) -> FieldLocation {
-    FieldLocation {
+fn down(curr: &Loc) -> Loc {
+    Loc {
         row: curr.row + 1,
         col: curr.col,
-        appr: Direction::Up,
+        appr: Some(Direction::Up),
     }
 }
-fn left(curr: &FieldLocation) -> FieldLocation {
-    FieldLocation {
+fn left(curr: &Loc) -> Loc {
+    Loc {
         row: curr.row,
         col: curr.col - 1,
-        appr: Direction::Right,
+        appr: Some(Direction::Right),
     }
 }
-fn right(curr: &FieldLocation) -> FieldLocation {
-    FieldLocation {
+fn right(curr: &Loc) -> Loc {
+    Loc {
         row: curr.row,
         col: curr.col + 1,
-        appr: Direction::Left,
+        appr: Some(Direction::Left),
     }
 }
 
