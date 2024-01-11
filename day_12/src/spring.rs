@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Spring {
     Working,
     Unknown,
@@ -38,7 +38,8 @@ mod tests {
     }
 }
 
-pub struct SpringGroup(Vec<Spring>);
+#[derive(Debug, PartialEq, Eq)]
+pub struct SpringGroup(pub Vec<Spring>);
 
 impl SpringGroup {
     pub fn len(&self) -> usize {
@@ -49,10 +50,10 @@ impl SpringGroup {
 impl From<&[char]> for SpringGroup {
     fn from(value: &[char]) -> Self {
         let mut chars = value.iter().peekable();
-        let first = chars.peek().expect("no chars to parse!");
+        let first = chars.peek().expect("no chars to parse!").to_owned();
         let springs = chars
             .take_while(|ch| {
-                if **first == '.' {
+                if *first == '.' {
                     **ch == '.'
                 } else {
                     **ch == '#' || **ch == '?'
