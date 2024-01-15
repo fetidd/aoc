@@ -30,7 +30,7 @@ fn parse_springs(springs: &str) -> Vec<SpringGroup> {
     while i < springs.len() {
         // input will always be ascii so this is safe
         let g: SpringGroup = springs[i..].into();
-        i += g.len();
+        i += std::cmp::max(g.len(), 1);
         groups.push(g);
     }
     groups
@@ -51,21 +51,32 @@ mod tests {
 
     #[test]
     fn test_parse_springs() {
-        assert_eq!(parse_springs("????.#...#..."), vec![
-            SpringGroup(vec![Spring::Unknown; 4]),
-            SpringGroup(vec![Spring::Working]),
-            SpringGroup(vec![Spring::Damaged]),
-            SpringGroup(vec![Spring::Working; 3]),
-            SpringGroup(vec![Spring::Damaged]),
-            SpringGroup(vec![Spring::Working; 3])
-        ]);
-        assert_eq!(parse_springs("??#?.#...#..."), vec![
-            SpringGroup(vec![Spring::Unknown, Spring::Unknown, Spring::Damaged, Spring::Unknown]),
-            SpringGroup(vec![Spring::Working]),
-            SpringGroup(vec![Spring::Damaged]),
-            SpringGroup(vec![Spring::Working; 3]),
-            SpringGroup(vec![Spring::Damaged]),
-            SpringGroup(vec![Spring::Working; 3])
-        ]);
+        assert_eq!(
+            parse_springs("????.#...#..."),
+            vec![
+                SpringGroup(vec![Spring::Unknown; 4]),
+                // SpringGroup(vec![Spring::Working]),
+                SpringGroup(vec![Spring::Damaged]),
+                // SpringGroup(vec![Spring::Working; 3]),
+                SpringGroup(vec![Spring::Damaged]),
+                // SpringGroup(vec![Spring::Working; 3])
+            ]
+        );
+        assert_eq!(
+            parse_springs("??#?.#...#..."),
+            vec![
+                SpringGroup(vec![
+                    Spring::Unknown,
+                    Spring::Unknown,
+                    Spring::Damaged,
+                    Spring::Unknown
+                ]),
+                // SpringGroup(vec![Spring::Working]),
+                SpringGroup(vec![Spring::Damaged]),
+                // SpringGroup(vec![Spring::Working; 3]),
+                SpringGroup(vec![Spring::Damaged]),
+                // SpringGroup(vec![Spring::Working; 3])
+            ]
+        );
     }
 }

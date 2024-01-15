@@ -17,12 +17,7 @@ impl From<char> for Spring {
 }
 impl From<&char> for Spring {
     fn from(value: &char) -> Self {
-        match *value {
-            '.' => Spring::Working,
-            '?' => Spring::Unknown,
-            '#' => Spring::Damaged,
-            _ => panic!("received bad spring character"),
-        }
+        Self::from(*value)
     }
 }
 
@@ -53,10 +48,10 @@ impl From<&[char]> for SpringGroup {
         let first = chars.peek().expect("no chars to parse!").to_owned();
         let springs = chars
             .take_while(|ch| {
-                if *first == '.' {
-                    **ch == '.'
-                } else {
+                if *first != '.' {
                     **ch == '#' || **ch == '?'
+                } else {
+                    false
                 }
             })
             .map(Spring::from)
