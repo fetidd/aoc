@@ -48,7 +48,7 @@ fn main() {
         }
         mods.push_str("}\n");
     }
-    function.push_str("        d => panic!(\"Invalid selection: {year} {day}\")\n    }\n}\n");
+    function.push_str("        _ => panic!(\"Invalid selection: {year} {day}\")\n    }\n}\n");
     let code = format!("{mods}\n\n{function}");
     fs::write(&lib_dest_path, code).expect("failed to write code");
     println!("cargo:rerun-if-changed=src");

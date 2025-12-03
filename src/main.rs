@@ -42,18 +42,32 @@ fn main() {
         )
         .expect("failed to write new puzzle");
     } else {
-        let run_fn = aoc::get_puzzle(args.year, args.day);
-        if let Some(input) = inputs.get(&(args.year as usize, args.day as usize)) {
-            let res: String = run_fn(input);
-            println!("Answer: {res}");
-        } else {
-            println!("Failed to find input for this puzzle");
-        }
+        let input_str = {
+            if let Some(input) = inputs.get(&(args.year as usize, args.day as usize)) {
+                input.clone()
+            } else {
+                // need to log in!
+                if let Ok(recv) = reqwest::blocking::get(format!("https://adventofcode.com/{}/day/{}/input", args.year, args.day)).unwrap().text() {
+                    fs::write(path.join("inputs").join(&format!("{}_{}", args.year, args.day)), &recv).expect("failed to write downloaded input to file");
+                    recv
+                } else {
+                    panic!("failed to retrive missing input");
+                }
+            }
+        };
+        let start = std::time::Instant::now();
+        let res: String = aoc::get_puzzle(args.year, args.day)(&input_str);
+        let end = std::time::Instant::now();
+        println!("Answer: {res} ({:?})", start - end);
     }
 }
 
 fn get_inputs(path: &PathBuf) -> HashMap<(usize, usize), String> {
-    let inputs_dir = fs::read_dir(path.join("inputs")).expect("failed to read inputs dir; have you added them?");
+    let inputs_path = path.join("inputs");
+    if !inputs_path.exists() {
+        fs::create_dir(inputs_path).expect("failed to create missing inputs path");
+    }
+    let inputs_dir = fs::read_dir(path.join("inputs")).expect("failed to read inputs dir");
     let inputs = inputs_dir.into_iter().map(|dir_entry| {
         if let Ok(de) = dir_entry {
             let file_name = de
