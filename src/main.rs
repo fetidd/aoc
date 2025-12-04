@@ -38,7 +38,7 @@ fn main() {
         code.push_str("    #[test]\n");
         code.push_str("    fn test_run() {\n");
         code.push_str("        let input = \"\";\n");
-        code.push_str("        assert_eq!(\"\", &run(input));\n");
+        code.push_str("        assert_eq!(\"\", &run(input, 1));\n");
         code.push_str("    }\n");
         code.push_str("}\n");
         fs::write(
