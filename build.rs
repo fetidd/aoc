@@ -47,7 +47,7 @@ fn main() {
     }
     let mut mods = String::new();
     let mut function = String::from(
-        "pub fn get_puzzle(year: u32, day: u32) -> fn(&str) -> String {\n    match (year, day) {\n",
+        "pub fn get_puzzle(year: u32, day: u32) -> fn(&str, u8) -> String {\n    match (year, day) {\n",
     );
     for (year, days) in years {
         for (day, file_name) in days {

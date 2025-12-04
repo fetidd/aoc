@@ -14,6 +14,7 @@ struct Args {
 
     year: u32,
     day: u32,
+    part: u8,
 
     #[arg(short, long)]
     path: Option<PathBuf>,
@@ -28,7 +29,7 @@ fn main() {
     let inputs = get_inputs(&path);
     if args.new {
         let mut code = format!(
-            "pub fn run(input: &str) -> String {{\n    \"{} {}\".into()\n}}\n\n",
+            "pub fn run(input: &str, part: u8) -> String {{\n    \"{} {}\".into()\n}}\n\n",
             args.year, args.day
         );
         code.push_str("#[cfg(test)]\n");
@@ -86,7 +87,7 @@ fn main() {
             }
         };
         let start = std::time::Instant::now();
-        let res: String = aoc::get_puzzle(args.year, args.day)(&input_str);
+        let res: String = aoc::get_puzzle(args.year, args.day)(&input_str, args.part);
         let end = std::time::Instant::now();
         println!("Answer: {res} ({:?})", end - start);
     }

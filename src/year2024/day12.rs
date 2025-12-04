@@ -1,4 +1,4 @@
-pub fn run(input: &str) -> String {
+pub fn run(input: &str, _part: u8) -> String {
     let grid = input
         .trim()
         .split("\n")
@@ -30,7 +30,7 @@ VVIIICJJEE
 MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE";
-        assert_eq!("1930", &run(input));
+        assert_eq!("1930", &run(input, 1));
         // assert_eq!("1206", &run(input));
     }
 }

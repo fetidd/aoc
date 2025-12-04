@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-pub fn run(input: &str) -> String {
+pub fn run(input: &str, _part: u8) -> String {
     input.trim().split(",").map(|range_str| {
         let dash_index = range_str.find("-").expect("range string was missing a dash!");
         let (left, right) = range_str.split_at(dash_index);
@@ -50,7 +50,7 @@ mod test {
     fn test() {
         let input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124";
         // assert_eq!(run(input), "1227775554");
-        assert_eq!(run(input), "4174379265");
+        assert_eq!(run(input, 1), "4174379265");
     }
 
     #[test]

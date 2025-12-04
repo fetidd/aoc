@@ -1,4 +1,4 @@
-pub fn run(input: &str) -> String {
+pub fn run(input: &str, _part: u8) -> String {
     let mut ptr = 50;
     let mut zeroes = 0;
     for line in input.lines() {
@@ -46,6 +46,6 @@ L1
 L99
 R14
 L82";
-        assert_eq!(String::from("6"), run(input));
+        assert_eq!(String::from("6"), run(input, 1));
     }
 }
