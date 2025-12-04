@@ -1,6 +1,10 @@
 use clap::Parser;
+use reqwest::blocking::Client;
+use reqwest::header::{COOKIE, USER_AGENT};
 use std::fs;
 use std::{collections::HashMap, path::PathBuf};
+
+const AOC_URL: &str = "https://adventofcode.com";
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -19,7 +23,7 @@ fn main() {
     let args = Args::parse();
     let path = match args.path {
         Some(path) => path,
-        None => std::env::current_dir().unwrap()
+        _ => std::env::current_dir().unwrap(),
     };
     let inputs = get_inputs(&path);
     if args.new {
@@ -37,7 +41,9 @@ fn main() {
         code.push_str("    }\n");
         code.push_str("}\n");
         fs::write(
-            path.join("src").join(&format!("year{}", args.year)).join(&format!("day{}.rs", args.day)),
+            path.join("src")
+                .join(&format!("year{}", args.year))
+                .join(&format!("day{}.rs", args.day)),
             code.as_bytes(),
         )
         .expect("failed to write new puzzle");
@@ -46,19 +52,43 @@ fn main() {
             if let Some(input) = inputs.get(&(args.year as usize, args.day as usize)) {
                 input.clone()
             } else {
-                // need to log in!
-                if let Ok(recv) = reqwest::blocking::get(format!("https://adventofcode.com/{}/day/{}/input", args.year, args.day)).unwrap().text() {
-                    fs::write(path.join("inputs").join(&format!("{}_{}", args.year, args.day)), &recv).expect("failed to write downloaded input to file");
-                    recv
+                if let Ok(session_cookie) = fs::read_to_string(path.join("session_cookie.txt")) {
+                    let client = Client::default();
+                    let input_url = format!("{AOC_URL}/{}/day/{}/input", args.year, args.day);
+                    println!("fetching input from {input_url}");
+                    if let Ok(recv) = client
+                        .get(input_url)
+                        .header(COOKIE, session_cookie.trim())
+                        .header(
+                            USER_AGENT,
+                            "Hi Eric! Just grabbing my input! - Ben Jones (fetiddius@gmail.com)",
+                        )
+                        .send()
+                        .expect("failed requesting input")
+                        .text()
+                    {
+                        if recv.contains("Please log in") {
+                            panic!("Login to aoc failed: {recv}");
+                        }
+                        fs::write(
+                            path.join("inputs")
+                                .join(&format!("{}_{}", args.year, args.day)),
+                            &recv,
+                        )
+                        .expect("failed to write downloaded input to file");
+                        recv
+                    } else {
+                        panic!("failed to download input");
+                    }
                 } else {
-                    panic!("failed to retrive missing input");
+                    panic!("missing session cookie");
                 }
             }
         };
         let start = std::time::Instant::now();
         let res: String = aoc::get_puzzle(args.year, args.day)(&input_str);
         let end = std::time::Instant::now();
-        println!("Answer: {res} ({:?})", start - end);
+        println!("Answer: {res} ({:?})", end - start);
     }
 }
 
@@ -79,7 +109,8 @@ fn get_inputs(path: &PathBuf) -> HashMap<(usize, usize), String> {
             if file_parts.len() == 2 {
                 let year = file_parts[0].parse::<usize>().unwrap();
                 let day = file_parts[1].parse::<usize>().unwrap();
-                let input_str = fs::read_to_string(de.path()).expect("failed to read input data to string");
+                let input_str =
+                    fs::read_to_string(de.path()).expect("failed to read input data to string");
                 ((year, day), input_str)
             } else {
                 panic!("filename was incorrect: {file_name}");
