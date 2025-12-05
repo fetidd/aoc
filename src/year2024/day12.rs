@@ -1,11 +1,7 @@
+use crate::grid::Grid;
+
 pub fn run(input: &str, _part: u8) -> String {
-    let grid = input
-        .trim()
-        .split("\n")
-        .map(|row| row.chars().map(|c| c.to_string()).collect::<Vec<String>>())
-        .collect::<Vec<Vec<String>>>();
-    let _width = grid[0].len();
-    let _height = grid.len();
+    let grid = Grid::from(input);
     for (ri, row) in grid.iter().enumerate() {
         for (pi, plant) in row.iter().enumerate() {
             println!("{ri},{pi} {plant}");

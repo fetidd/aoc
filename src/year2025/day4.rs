@@ -1,6 +1,4 @@
-pub fn run(input: &str, part: u8) -> String {
-    "2025 4".into()
-}
+pub fn run(input: &str, part: u8) -> String {}
 
 #[cfg(test)]
 mod test {
@@ -8,7 +6,16 @@ mod test {
 
     #[test]
     fn test_run() {
-        let input = "";
-        assert_eq!("", &run(input, 1));
+        let input = "..@@.@@@@.
+@@@.@.@.@@
+@@@@@.@.@@
+@.@@@@..@.
+@@.@@@@.@@
+.@@@@@@@.@
+.@.@.@.@@@
+@.@@@.@@@@
+.@@@@@@@@.
+@.@.@@@.@.";
+        assert_eq!("13", &run(input, 1));
     }
 }
