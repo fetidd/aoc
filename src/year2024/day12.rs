@@ -2,11 +2,6 @@ use crate::grid::Grid;
 
 pub fn run(input: &str, _part: u8) -> String {
     let grid = Grid::from(input);
-    for (ri, row) in grid.iter().enumerate() {
-        for (pi, plant) in row.iter().enumerate() {
-            println!("{ri},{pi} {plant}");
-        }
-    }
     input.into()
 }
 
