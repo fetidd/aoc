@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Point {
     pub row: usize,
     pub col: usize,
@@ -20,7 +20,7 @@ impl Point {
         if self.col < max_width - 1 {
             neighbours.push((self.row, self.col + 1).into());
         }
-        if self.row < max_height - 1{
+        if self.row < max_height - 1 {
             neighbours.push((self.row + 1, self.col).into());
         }
         neighbours

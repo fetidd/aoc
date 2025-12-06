@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 
 use crate::point::Point;
 
@@ -6,12 +6,16 @@ use crate::point::Point;
 pub struct Grid<T> {
     data: Vec<T>,
     height: usize,
-    width: usize
+    width: usize,
 }
 
 impl<T> Grid<T> {
     pub fn iter(&self) -> impl Iterator<Item = &T> {
         self.data.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
+        self.data.iter_mut()
     }
 
     pub fn get_point_from_index(&self, index: usize) -> Point {
@@ -50,6 +54,12 @@ impl<T> Index<Point> for Grid<T> {
     }
 }
 
+impl<T> IndexMut<Point> for Grid<T> {
+    fn index_mut(&mut self, index: Point) -> &mut Self::Output {
+        let index = self.width * index.row + index.col;
+        &mut self.data[index]
+    }
+}
 
 impl From<&str> for Grid<char> {
     fn from(value: &str) -> Self {
@@ -66,13 +76,12 @@ impl From<&str> for Grid<char> {
             } else {
                 data.push(ch);
             }
-            
         }
         assert_eq!(width * height, data.len());
         Self {
             data,
             height,
-            width
+            width,
         }
     }
 }
@@ -87,29 +96,29 @@ mod tests {
     fn test_indexing_tuple() {
         let grid_input = "123\n456\n789\n";
         let grid: Grid<char> = grid_input.into();
-        assert_eq!(grid[(0,0)], '1');
-        assert_eq!(grid[(0,1)], '2');
-        assert_eq!(grid[(0,2)], '3');
-        assert_eq!(grid[(1,0)], '4');
-        assert_eq!(grid[(1,1)], '5');
-        assert_eq!(grid[(1,2)], '6');
-        assert_eq!(grid[(2,0)], '7');
-        assert_eq!(grid[(2,1)], '8');
-        assert_eq!(grid[(2,2)], '9');
+        assert_eq!(grid[(0, 0)], '1');
+        assert_eq!(grid[(0, 1)], '2');
+        assert_eq!(grid[(0, 2)], '3');
+        assert_eq!(grid[(1, 0)], '4');
+        assert_eq!(grid[(1, 1)], '5');
+        assert_eq!(grid[(1, 2)], '6');
+        assert_eq!(grid[(2, 0)], '7');
+        assert_eq!(grid[(2, 1)], '8');
+        assert_eq!(grid[(2, 2)], '9');
     }
-    
+
     #[test]
     fn test_indexing_point() {
         let grid_input = "123\n456\n789\n";
         let grid: Grid<char> = grid_input.into();
-        assert_eq!(grid[Point::from((0,0))], '1');
-        assert_eq!(grid[Point::from((0,1))], '2');
-        assert_eq!(grid[Point::from((0,2))], '3');
-        assert_eq!(grid[Point::from((1,0))], '4');
-        assert_eq!(grid[Point::from((1,1))], '5');
-        assert_eq!(grid[Point::from((1,2))], '6');
-        assert_eq!(grid[Point::from((2,0))], '7');
-        assert_eq!(grid[Point::from((2,1))], '8');
-        assert_eq!(grid[Point::from((2,2))], '9');
+        assert_eq!(grid[Point::from((0, 0))], '1');
+        assert_eq!(grid[Point::from((0, 1))], '2');
+        assert_eq!(grid[Point::from((0, 2))], '3');
+        assert_eq!(grid[Point::from((1, 0))], '4');
+        assert_eq!(grid[Point::from((1, 1))], '5');
+        assert_eq!(grid[Point::from((1, 2))], '6');
+        assert_eq!(grid[Point::from((2, 0))], '7');
+        assert_eq!(grid[Point::from((2, 1))], '8');
+        assert_eq!(grid[Point::from((2, 2))], '9');
     }
 }
