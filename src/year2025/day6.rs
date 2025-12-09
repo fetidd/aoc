@@ -70,51 +70,44 @@ fn is_operator_ch(ch: &char) -> bool {
 
 fn parse_maths_homework_2(input: &str) -> Vec<Problem> {
     let mut problems: Vec<Problem> = Vec::new();
-    let mut lines = input.lines().rev();
-    let operator_line = lines.next().expect("empty input");
-    let mut last_i = 0;
-    let mut last_gap = 0;
-    // use last line to get operators and calculate column width
-    for (i, ch) in operator_line.char_indices() {
-        if is_operator_ch(&ch) {
-            let gap = i - last_i;
-            if last_gap > 0 && gap != last_gap {
-                panic!("not spaced evenly");
-            }
-            last_gap = gap;
-            last_i = i;
-            problems.push((Vec::new(), get_operator_fn_ch(&ch)));
-        }
-    }
-    // collect operands as strings of col length including whitespace
+    let lines: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
+    let line_len = lines[0].len();
+    let num_lines = lines.len();
+    let mut i = 0;
+    let mut operator = None;
     let mut operands = vec![];
-    let col_length = last_gap;
-    for mut line in lines {
-        let mut cols = Vec::new();
-        while !line.is_empty() {
-            let is_last = line.len() <= col_length;
-            let mut split_i = col_length;
-            if is_last {
-                split_i = col_length - 1;
-            }
-            let (col, rest) = line.split_at(split_i);
-            println!("{line} -> {col}, {rest}");
-            let mut to_add = col;
-            if !is_last {
-                to_add = &to_add[0..to_add.len() - 1];
-            }
-            cols.push(to_add);
-            line = rest;
+    while i < line_len {
+        let num_cursors = num_lines - 1;
+        let mut grabbed = vec![' '; num_cursors];
+        for (line_i, cursor) in grabbed.iter_mut().enumerate() {
+            // let index = i + (line_len * i);
+            let ch = lines[line_i][i];
+            *cursor = ch;
         }
-        operands.push(cols);
-    }
-    for (prob_i, problem) in problems.iter_mut.enumerate() {
-        for col_i in 0..col_length {
-            forn
+        let grabbed = grabbed.iter().collect::<String>();
+        if !grabbed.trim().is_empty() {
+            operands.push(grabbed.trim().parse::<u64>().unwrap())
+        } else {
+            push_problem(&mut operands, &mut operator, &mut problems);
         }
+        let ch = lines[num_lines - 1][i];
+        if is_operator_ch(&ch) {
+            operator = Some(get_operator_fn_ch(&ch));
+        }
+
+        i += 1;
     }
-    dbg!(operands);
+    push_problem(&mut operands, &mut operator, &mut problems);
     problems
+}
+
+fn push_problem(
+    operands: &mut Vec<u64>,
+    operator: &mut Option<fn(u64, u64) -> u64>,
+    problems: &mut Vec<Problem>,
+) {
+    let problem = (std::mem::take(operands), operator.take().unwrap());
+    problems.push(problem);
 }
 
 #[cfg(test)]
@@ -143,10 +136,10 @@ mod test {
   6 98  215 314
 *   +   *   +  ";
         let exp: Vec<Problem> = vec![
-            (vec![356, 24, 1], u64::strict_add),
-            (vec![8, 248, 369], u64::strict_mul),
-            (vec![175, 581, 32], u64::strict_add),
-            (vec![4, 431, 623], u64::strict_mul),
+            (vec![1, 24, 356], u64::strict_mul),
+            (vec![369, 248, 8], u64::strict_add),
+            (vec![32, 581, 175], u64::strict_mul),
+            (vec![623, 431, 4], u64::strict_add),
         ];
         assert_eq!(exp, parse_maths_homework_2(input));
     }
