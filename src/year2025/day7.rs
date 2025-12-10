@@ -62,5 +62,6 @@ mod test {
 .^.^.^.^.^...^.
 ...............";
         assert_eq!("21", &run(input, 1));
+        assert_eq!("40", &run(input, 2));
     }
 }
