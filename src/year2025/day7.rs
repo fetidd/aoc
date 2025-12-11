@@ -22,11 +22,8 @@ fn part_1(input: &str) -> u32 {
             if grid[check_p] == '^' {
                 for beam in beams.clone().iter() {
                     if beam.col == check_p.1 {
-                        // split the beam!
                         split_c += 1;
-                        // remove it from beams
                         beams.remove(&beam);
-                        // add the 2 neighbouring beams, if they fit - they probably always fit given the input
                         beams.insert(Point::new(beam.row, beam.col - 1));
                         beams.insert(Point::new(beam.row, beam.col + 1));
                     }
@@ -34,7 +31,6 @@ fn part_1(input: &str) -> u32 {
             }
         }
         line_i += 1;
-        println!("{beams:?}");
     }
     split_c
 }
